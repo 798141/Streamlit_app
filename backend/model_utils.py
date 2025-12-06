@@ -57,7 +57,8 @@ def segment_object_only(img_pil: Image.Image, model, device="cpu", bg_color=(0, 
     tensor = image_to_tensor(img_pil, device)
     out = model(tensor)
     logits = out['out'][0]
-    probs = torch.softmax(logits, dim=0).cpu().numpy()
+    probs = torch.softmax(logits, dim=0).detach().cpu().numpy()
+
 
     fg_prob = np.max(probs[1:], axis=0)
     img_w, img_h = img_pil.size
