@@ -159,7 +159,7 @@ if uploaded:
     img = Image.open(uploaded).convert("RGB")
     st.image(resize_image(img), caption="Your Photo 🌟", width=350)
 
-    if st.button("Apply Pink Mask 💗"):
+    if st.button("Process image💗"):
         with st.spinner("Making your picture gorgeous… 💞"):
             bg = tuple(int(bg_color.lstrip("#")[i:i+2], 16) for i in (0, 2, 4))
             result = segment_object_only(img, model, device, bg)
@@ -168,6 +168,6 @@ if uploaded:
         buf = io.BytesIO()
         result.save(buf, format="PNG")
         buf.seek(0)
-        st.download_button("Download Your Pink Edit 🎀", buf, "pink_mask_output.png", "image/png")
+        st.download_button("Download Your Edit 🎀", buf, "pink_mask_output.png", "image/png")
 
 st.markdown("</div>", unsafe_allow_html=True)
