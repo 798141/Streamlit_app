@@ -16,7 +16,7 @@ def resize_image(img: Image.Image, max_width=350):
     return img.resize(new_size, Image.Resampling.LANCZOS)
 
 # ----------------- Streamlit Setup -----------------
-st.set_page_config(page_title="PinkMask – Soft Object Cutout", layout="wide")
+st.set_page_config(page_title="Soft Object Cutout", layout="wide")
 
 # ----------------- CSS Styling -----------------
 st.markdown("""
@@ -119,7 +119,7 @@ img {
 """, unsafe_allow_html=True)
 
 # ----------------- Title -----------------
-st.markdown("<div class='title'>💗 PinkMask — Soft Object Cutout</div>", unsafe_allow_html=True)
+st.markdown("<div class='title'>💗Soft Object Cutout</div>", unsafe_allow_html=True)
 st.markdown("<div class='subtitle'>Make your photos dreamy & aesthetic with gentle background removal ✨</div>", unsafe_allow_html=True)
 
 # ----------------- Features -----------------
@@ -147,7 +147,7 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 # ----------------- Try Me -----------------
 st.markdown("<div class='card'>", unsafe_allow_html=True)
-st.markdown("<div class='section-header'>📸 Try PinkMagic</div>", unsafe_allow_html=True)
+st.markdown("<div class='section-header'>📸 Try Here</div>", unsafe_allow_html=True)
 
 uploaded = st.file_uploader("Upload your cute picture 💕", type=["png","jpg","jpeg","webp"])
 bg_color = st.color_picker("Pick a soft background color 🌈", "#ffcce8")
