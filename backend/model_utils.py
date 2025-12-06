@@ -22,8 +22,8 @@ def load_model(device="cpu"):
 # ----------------- Preprocessing -----------------
 preprocess = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                         std=[0.229, 0.224, 0.225])
+    transforms.Normalize(mean=[0.485,0.456,0.406],
+                         std=[0.229,0.224,0.225])
 ])
 
 def image_to_tensor(img_pil: Image.Image, device="cpu"):
@@ -40,7 +40,7 @@ def keep_largest_component(mask_np):
 
 def refine_mask(prob_map):
     bin_mask = (prob_map >= FG_THRESHOLD).astype("uint8") * 255
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (MORPH_KERNEL, MORPH_KERNEL))
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (MORPH_KERNEL,MORPH_KERNEL))
     cleaned = cv2.morphologyEx(bin_mask, cv2.MORPH_CLOSE, kernel, iterations=MORPH_ITER)
     cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel, iterations=MORPH_ITER)
     if KEEP_LARGEST:
@@ -48,26 +48,25 @@ def refine_mask(prob_map):
     return cleaned
 
 def sharpen_image(img):
-    blur = cv2.GaussianBlur(img, (0, 0), 3)
+    blur = cv2.GaussianBlur(img, (0,0), 3)
     sharp = cv2.addWeighted(img, 1.7, blur, -0.7, 0)
     return np.clip(sharp, 0, 255).astype("uint8")
 
 # ----------------- Core Segmentation -----------------
-def segment_object_only(img_pil: Image.Image, model, device="cpu", bg_color=(0, 0, 0)):
+def segment_object_only(img_pil: Image.Image, model, device="cpu", bg_color=(0,0,0)):
     tensor = image_to_tensor(img_pil, device)
     out = model(tensor)
     logits = out['out'][0]
-    probs = torch.softmax(logits, dim=0).detach().cpu().numpy()
-
+    probs = torch.softmax(logits, dim=0).cpu().numpy()
 
     fg_prob = np.max(probs[1:], axis=0)
     img_w, img_h = img_pil.size
-    fg_prob_resized = cv2.resize(fg_prob, (img_w, img_h), cv2.INTER_NEAREST)
+    fg_prob_resized = cv2.resize(fg_prob, (img_w,img_h), cv2.INTER_NEAREST)
     bin_mask = refine_mask(fg_prob_resized)
 
-    src = np.array(img_pil).astype("float32") / 255.0
-    bg = np.ones_like(src) * (np.array(bg_color) / 255.0)
-    alpha = (bin_mask / 255)[:, :, None]
-    out_rgb = src * alpha + bg * (1 - alpha)
+    src = np.array(img_pil).astype("float32")/255.0
+    bg = np.ones_like(src) * (np.array(bg_color)/255.0)
+    alpha = (bin_mask/255)[:, :, None]
+    out_rgb = src*alpha + bg*(1-alpha)
 
     return Image.fromarray(sharpen_image(out_rgb))
