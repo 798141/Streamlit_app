@@ -39,41 +39,55 @@ def keep_largest_component(mask_np):
     return (labels == largest_label).astype("uint8") * 255
 
 def refine_mask(prob_map):
+    # convert to binary mask
     bin_mask = (prob_map >= FG_THRESHOLD).astype("uint8") * 255
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (MORPH_KERNEL, MORPH_KERNEL))
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,
+                                       (MORPH_KERNEL, MORPH_KERNEL))
+
+    # close holes + open noise
     cleaned = cv2.morphologyEx(bin_mask, cv2.MORPH_CLOSE, kernel, iterations=MORPH_ITER)
     cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel, iterations=MORPH_ITER)
+
     if KEEP_LARGEST:
         cleaned = keep_largest_component(cleaned)
-    return cleaned
 
-def sharpen_image(img):
-    blur = cv2.GaussianBlur(img, (0, 0), 3)
-    sharp = cv2.addWeighted(img, 1.7, blur, -0.7, 0)
-    return np.clip(sharp, 0, 255).astype("uint8")
+    return cleaned
 
 # ----------------- Core Segmentation -----------------
 def segment_object_only(img_pil: Image.Image, model, device="cpu", bg_color=(0, 0, 0)):
+    """Return image with subject unchanged and background pure black."""
+    
+    # Step 1: model forward
     tensor = image_to_tensor(img_pil, device)
-
     with torch.no_grad():
         out = model(tensor)
 
+    # Step 2: get probability map
     logits = out['out'][0]
-
-    # FIXED LINE HERE
     probs = torch.softmax(logits, dim=0).detach().cpu().numpy()
 
+    # foreground = any class > background
     fg_prob = np.max(probs[1:], axis=0)
+
+    # resize probability to original size
     img_w, img_h = img_pil.size
     fg_prob_resized = cv2.resize(fg_prob, (img_w, img_h), cv2.INTER_NEAREST)
+
+    # Step 3: refine mask
     bin_mask = refine_mask(fg_prob_resized)
 
-    src = np.array(img_pil).astype("float32") / 255.0
-    bg = np.ones_like(src) * (np.array(bg_color) / 255.0)
-    alpha = (bin_mask / 255)[:, :, None]
-    out_rgb = src * alpha + bg * (1 - alpha)
+    # Step 4: apply mask — background becomes black
+    src = np.array(img_pil)
 
-    final_img = (out_rgb * 255).astype("uint8")
-    return Image.fromarray(sharpen_image(final_img))
+    # mask 0 or 1
+    mask = (bin_mask / 255).astype("float32")
+    mask = mask[:, :, None]
 
+    # pure black background
+    background = np.zeros_like(src)  # (H, W, 3)
+
+    # combine: subject stays, background becomes black
+    out_rgb = src * mask + background * (1 - mask)
+
+    return Image.fromarray(out_rgb.astype("uint8"))
