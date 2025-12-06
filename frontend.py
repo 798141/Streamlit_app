@@ -4,6 +4,7 @@ import io
 from pathlib import Path
 from PIL import Image
 import streamlit as st
+import torch
 
 from backend.model_utils import load_model, segment_object_only
 
