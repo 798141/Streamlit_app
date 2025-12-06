@@ -1,5 +1,3 @@
-
-
 import io
 from pathlib import Path
 from PIL import Image
@@ -14,11 +12,11 @@ def resize_image(img: Image.Image, max_width=350):
     if w <= max_width:
         return img
     scale = max_width / w
-    new_size = (max_width, int(h*scale))
+    new_size = (max_width, int(h * scale))
     return img.resize(new_size, Image.Resampling.LANCZOS)
 
 # ----------------- Streamlit Setup -----------------
-st.set_page_config(page_title="SegMe – Smart Masking", layout="wide")
+st.set_page_config(page_title="Vision Extract", layout="wide")
 
 # ----------------- CSS Styling -----------------
 st.markdown("""
@@ -73,17 +71,19 @@ BASE_DIR = Path(__file__).parent
 SAMPLES_DIR = BASE_DIR.parent / "samples"
 
 col1, col2 = st.columns(2)
-if (SAMPLES_DIR/"sample_input.jpg").exists():
-    col1.image(resize_image(Image.open(SAMPLES_DIR/"sample_input.jpg")), caption="Sample Input", width=340)
-if (SAMPLES_DIR/"sample_output.png").exists():
-    col2.image(resize_image(Image.open(SAMPLES_DIR/"sample_output.png")), caption="Sample Output", width=340)
+if (SAMPLES_DIR/"Sample Input.jpg").exists():
+    col1.image(resize_image(Image.open(SAMPLES_DIR/"Sample Input.jpg")), caption="Sample Input", width=340)
+if (SAMPLES_DIR/"Sample Output.jpg").exists():
+    col2.image(resize_image(Image.open(SAMPLES_DIR/"Sample Output.jpg")), caption="Sample Output", width=340)
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ----------------- Try Me -----------------
 st.markdown("<div class='card'>", unsafe_allow_html=True)
 st.markdown("<div class='section-header'>🚀 Try It Yourself</div>", unsafe_allow_html=True)
-uploaded = st.file_uploader("Upload your image", type=["png","jpg","jpeg","webp"])
+
+uploaded = st.file_uploader("Upload your image", type=["png", "jpg", "jpeg", "webp"])
 bg_color = st.color_picker("Pick background color", "#000000")
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = load_model(device)
 
@@ -93,7 +93,7 @@ if uploaded:
 
     if st.button("Process Image"):
         with st.spinner("Applying mask…"):
-            bg = tuple(int(bg_color.lstrip("#")[i:i+2], 16) for i in (0,2,4))
+            bg = tuple(int(bg_color.lstrip("#")[i:i+2], 16) for i in (0, 2, 4))
             result = segment_object_only(img, model, device, bg)
 
         st.image(resize_image(result), caption="Output", width=350)
@@ -101,4 +101,5 @@ if uploaded:
         result.save(buf, format="PNG")
         buf.seek(0)
         st.download_button("Download Result", buf, "masked_output.png", "image/png")
+
 st.markdown("</div>", unsafe_allow_html=True)
