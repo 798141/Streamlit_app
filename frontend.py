@@ -152,7 +152,7 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 # ----------------- Try Me Section -----------------
 st.markdown("<div class='card'>", unsafe_allow_html=True)
-st.markdown("<div class='section-header'>📸 Try the Pink Magic</div>", unsafe_allow_html=True)
+st.markdown("<div class='section-header'>📸 Try Here </div>", unsafe_allow_html=True)
 
 uploaded = st.file_uploader("Upload your beautiful picture 💕", type=["png","jpg","jpeg","webp"])
 bg_color = st.color_picker("Choose a soft background color 🌈", "#ffcce8")
