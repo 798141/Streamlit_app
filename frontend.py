@@ -16,7 +16,7 @@ def resize_image(img: Image.Image, max_width=350):
     return img.resize(new_size, Image.Resampling.LANCZOS)
 
 # ----------------- Streamlit Setup -----------------
-st.set_page_config(page_title="Soft Object Cutout", layout="wide")
+st.set_page_config(page_title="Pixiel Mask", layout="wide")
 
 # ----------------- CSS Styling -----------------
 st.markdown("""
@@ -60,7 +60,7 @@ html, body, [class*="css"] { font-family: 'Poppins', sans-serif; }
     border-left: 6px solid #ff9cd4;
 }
 
-/* Section headers */
+/* Section header */
 .section-header { 
     font-size: 28px; 
     font-weight: 700; 
@@ -88,9 +88,9 @@ html, body, [class*="css"] { font-family: 'Poppins', sans-serif; }
     margin-top: 10px; 
 }
 
-/* Buttons */
+/* VIOLET BUTTONS */
 .stButton > button { 
-    background: linear-gradient(90deg,#ff52a8,#ff8ac9); 
+    background: linear-gradient(90deg,#7b2fff,#b983ff); 
     color: white; 
     font-size: 18px; 
     padding: 10px 25px; 
@@ -98,17 +98,22 @@ html, body, [class*="css"] { font-family: 'Poppins', sans-serif; }
     border: none; 
     transition: 0.2s; 
 }
-.stButton > button:hover { transform: scale(1.05); }
+.stButton > button:hover { 
+    transform: scale(1.05); 
+}
 
+/* Violet download button */
 .stDownloadButton > button { 
-    background: linear-gradient(90deg,#ff4f9f,#ff76bd); 
+    background: linear-gradient(90deg,#6a0dad,#a56eff); 
     color: white; 
     font-size: 18px; 
     padding: 10px 25px; 
     border-radius: 14px; 
     border: none; 
 }
-.stDownloadButton > button:hover { transform: scale(1.05); }
+.stDownloadButton > button:hover { 
+    transform: scale(1.05); 
+}
 
 /* Image styling */
 img { 
@@ -119,8 +124,8 @@ img {
 """, unsafe_allow_html=True)
 
 # ----------------- Title -----------------
-st.markdown("<div class='title'>💗Soft Object Cutout</div>", unsafe_allow_html=True)
-st.markdown("<div class='subtitle'>Make your photos dreamy & aesthetic with gentle background removal ✨</div>", unsafe_allow_html=True)
+st.markdown("<div class='title'> Pixiel Mask</div>", unsafe_allow_html=True)
+st.markdown("<div class='subtitle'>Make your photos dreamy & beautiful with soft masking magic ✨</div>", unsafe_allow_html=True)
 
 # ----------------- Features -----------------
 st.markdown("<div class='card'>", unsafe_allow_html=True)
@@ -131,26 +136,26 @@ c1, c2, c3 = st.columns(3)
 with c1:
     st.markdown("""<div class='feature-box'><div style='font-size:45px;'>✨</div>
                    <div class='feature-title'>Soft Cutout</div>
-                   Smooth and clean separation of your subject.</div>""", unsafe_allow_html=True)
+                   Clean and smooth edges for perfect results.</div>""", unsafe_allow_html=True)
 
 with c2:
-    st.markdown("""<div class='feature-box'><div style='font-size:45px;'>💖</div>
-                   <div class='feature-title'>Aesthetic Output</div>
-                   Pink-themed, gentle blending for pretty results.</div>""", unsafe_allow_html=True)
+    st.markdown("""<div class='feature-box'><div style='font-size:45px;'>💗</div>
+                   <div class='feature-title'>Aesthetic Edit</div>
+                   Gentle pastel tones for dreamy looks.</div>""", unsafe_allow_html=True)
 
 with c3:
     st.markdown("""<div class='feature-box'><div style='font-size:45px;'>⚡</div>
                    <div class='feature-title'>Fast Processing</div>
-                   Quick and lightweight image masking.</div>""", unsafe_allow_html=True)
+                   Lightning-fast object masking.</div>""", unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# ----------------- Try Me -----------------
+# ----------------- Try Me Section -----------------
 st.markdown("<div class='card'>", unsafe_allow_html=True)
-st.markdown("<div class='section-header'>📸 Try Here</div>", unsafe_allow_html=True)
+st.markdown("<div class='section-header'>📸 Try the Pink Magic</div>", unsafe_allow_html=True)
 
-uploaded = st.file_uploader("Upload your cute picture 💕", type=["png","jpg","jpeg","webp"])
-bg_color = st.color_picker("Pick a soft background color 🌈", "#ffcce8")
+uploaded = st.file_uploader("Upload your beautiful picture 💕", type=["png","jpg","jpeg","webp"])
+bg_color = st.color_picker("Choose a soft background color 🌈", "#ffcce8")
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = load_model(device)
@@ -159,12 +164,12 @@ if uploaded:
     img = Image.open(uploaded).convert("RGB")
     st.image(resize_image(img), caption="Your Photo 🌟", width=350)
 
-    if st.button("Process image💗"):
-        with st.spinner("Making your picture gorgeous… 💞"):
+    if st.button("Process Image 💜"):
+        with st.spinner("Creating your aesthetic edit… ✨"):
             bg = tuple(int(bg_color.lstrip("#")[i:i+2], 16) for i in (0, 2, 4))
             result = segment_object_only(img, model, device, bg)
 
-        st.image(resize_image(result), caption="Aesthetic Output ✨", width=350)
+        st.image(resize_image(result), caption="Aesthetic Output 💖", width=350)
         buf = io.BytesIO()
         result.save(buf, format="PNG")
         buf.seek(0)
